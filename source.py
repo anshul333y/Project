@@ -1,34 +1,34 @@
-import prettytable
-import mysql.connector
 import os
 import csv
-con_Str = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="Root@1234",
-    database="project"
-    )
+import prettytable
+import mysql.connector
+con_Str = mysql.connector.connect(host="localhost", user="root", password="Root@1234")
 cursor = con_Str.cursor()
-# Option 1 fuction call
+cursor.execute("create database if not exists project;")
+cursor.execute("use project;")
+cursor.execute("create table if not exists items(item_id int primary key,"
+               "item_name varchar(50) not null,item_price float not null);")
+
+
+# Option 1 function call
 def option1():
     try:
-        file = open("bill.csv","a",newline="")
+        file = open("bill.csv", "a", newline="")
         writer = csv.writer(file)
-        headerlist = ["Item ID","Item Name","Price/Item","Quantity","Total Price"]
-        writer.writerow(headerlist)
+        header_list = ["Item ID", "Item Name", "Price/Item", "Quantity", "Total Price"]
+        writer.writerow(header_list)
         amount = 0
         while True:
             l1 = []
             query1 = "select * from items where item_id = %s;"
             item_id = input("Enter the item id : ")
-            cursor.execute(query1,[item_id])
+            cursor.execute(query1, [item_id])
             result = cursor.fetchall()
             for i in result:
-                table = prettytable.PrettyTable(["Item ID","Item Name","Price per Item"])    
+                table = prettytable.PrettyTable(["Item ID", "Item Name", "Price per Item"])
                 table.add_row(i)
-                print("\n\t   Item Description")            
-                print(table,"\n")
-                l2 = []
+                print("\n\t   Item Description")
+                print(table, "\n")
                 l2 = list(i)
                 l1.extend(l2)
                 price = l1[2]
@@ -39,12 +39,12 @@ def option1():
                 amount += total
                 writer.writerow(l1)
             ch = input("Do yo want to purchase more items y/n : ")
-            if ch in ["y","n"]:    
+            if ch in ["y", "n"]:
                 if ch == "n":
                     break
             else:
                 print("Wrong input !! try again")
-        writer.writerow(["","","","Amount to be paid",amount])
+        writer.writerow(["", "", "", "Amount to be paid", amount])
         file.close()
         os.system("cls")
         print("\n\t\t\t\tBill\n")
@@ -52,27 +52,31 @@ def option1():
         table = prettytable.from_csv(file)
         print(table)
         file.close()
-        os.remove("bill.csv")
         print()
-    except:
-        print("error 1")
+    except Exception as e:
+        print(e)
+    finally:
         os.remove("bill.csv")
-# Option 2 fuction call
+
+
+# Option 2 function call
 def option2():
     try:
         query = "select * from items;"
         cursor.execute(query)
         result = cursor.fetchall()
-        table = prettytable.PrettyTable(["Item ID","Item Name","Price per Item"])
-        for i in result:    
+        table = prettytable.PrettyTable(["Item ID", "Item Name", "Price per Item"])
+        for i in result:
             table.add_row(i)
         print(table)
-    except:
-        print("error 2")
-# Option 3 fuction call
+    except Exception as e:
+        print(e)
+
+
+# Option 3 function call
 def option3():
     try:
-        with open("project.csv","a",newline = "") as file:
+        with open("project.csv", "a", newline="") as file:
             writer = csv.writer(file)
             while True:
                 l1 = []
@@ -84,7 +88,7 @@ def option3():
                 l1.append(c)
                 writer.writerow(l1)
                 ch = input("Do yo want to add more items y/n : ")
-                if ch in ["y","n"]:    
+                if ch in ["y", "n"]:
                     if ch == "n":
                         break
                 else:
@@ -93,30 +97,34 @@ def option3():
             reader = csv.reader(file)
             for i in reader:
                 query = "insert into items values(%s,%s,%s);"
-                cursor.execute(query,i)
+                cursor.execute(query, i)
                 con_Str.commit()
-            print("Record Added succesfully")
+            print("Record Added successfully")
+    except Exception as e:
+        print(e)
+    finally:
         os.remove("project.csv")
-    except:
-        print("error 3")
-        os.remove("project.csv")
-# Option 4 fuction call
+
+
+# Option 4 function call
 def option4():
     try:
         while True:
             query = "delete from items where item_id = %s;"
             item_id = input("Enter the item id to be deleted : ")
-            cursor.execute(query,[item_id])
+            cursor.execute(query, [item_id])
             con_Str.commit()
-            print("Record Removed succesfully")
+            print("Record Removed successfully")
             ch = input("Do yo want to remove more items y/n : ")
-            if ch in ["y","n"]:    
+            if ch in ["y", "n"]:
                 if ch == "n":
                     break
             else:
                 print("Wrong input !! try again")
-    except:
-        print("error 4")
+    except Exception as e:
+        print(e)
+
+
 # Main Block Program Starts
 def main_menu():
     try:
@@ -142,12 +150,14 @@ def main_menu():
             else:
                 print("Wrong Input try again")
             ch = input("Do You want to continue to main menu y/n : ")
-            if ch in ["y","n"]:    
+            if ch in ["y", "n"]:
                 if ch == "n":
                     break
             else:
                 print("Wrong input !! try again")
-    except:
-        print("error 0")
+    except Exception as e:
+        print(e)
+
+
 # Main Block Program Call
 main_menu()
